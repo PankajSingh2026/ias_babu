@@ -1,0 +1,19 @@
+<div class="notif-box">
+  <div class="notif-box-header"><%= heading %></div>
+  <div class="notif-scroller">
+    <ul class="notif-track">
+      <% items.forEach(function(item) { %>
+        <li class="<%= item.is_highlighted ? 'highlight' : '' %>">
+          <a href="<%= item.link_url %>" target="_blank" rel="noopener"><%= item.title %></a>
+        </li>
+      <% }) %>
+      <!-- duplicate list for seamless loop -->
+      <% items.forEach(function(item) { %>
+        <li class="<%= item.is_highlighted ? 'highlight' : '' %>" aria-hidden="true">
+          <a href="<%= item.link_url %>" target="_blank" rel="noopener"><%= item.title %></a>
+        </li>
+      <% }) %>
+    </ul>
+  </div>
+  <a class="notif-viewall" href="<%= viewAllUrl %>">View all &rarr;</a>
+</div>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | Admin</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="admin-body">
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="admin-brand"><%= siteName %> Admin</div>
+      <nav>
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/nav">Navigation</a>
+        <a href="/admin/notifications">Jobs / Admit Card / Result</a>
+        <a href="/admin/blog">Blog Moderation</a>
+        <a href="/admin/syllabus">Syllabus</a>
+        <a href="/admin/pages">Site Pages</a>
+        <a href="/admin/users">Users</a>
+        <hr>
+        <a href="/">View Site</a>
+        <form action="/logout" method="POST"><button type="submit" class="link-btn">Log out</button></form>
+      </nav>
+    </aside>
+    <main class="admin-main">

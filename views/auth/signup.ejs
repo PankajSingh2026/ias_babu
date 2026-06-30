@@ -1,0 +1,17 @@
+<%- include('partials/header') %>
+<section class="auth-page">
+  <h1>Sign Up</h1>
+  <% if (errors.length) { %>
+    <ul class="form-error">
+      <% errors.forEach(function(e) { %><li><%= e.msg %></li><% }) %>
+    </ul>
+  <% } %>
+  <form method="POST" action="/signup" class="form">
+    <label>Name<input type="text" name="name" value="<%= old.name || '' %>" required></label>
+    <label>Email<input type="email" name="email" value="<%= old.email || '' %>" required></label>
+    <label>Password (min 8 characters)<input type="password" name="password" required minlength="8"></label>
+    <button class="btn-solid" type="submit">Create Account</button>
+  </form>
+  <p>Already have an account? <a href="/login">Log in</a></p>
+</section>
+<%- include('partials/footer') %>

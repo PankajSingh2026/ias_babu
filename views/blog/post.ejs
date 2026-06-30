@@ -1,0 +1,45 @@
+<%- include('partials/header') %>
+<article class="blog-post">
+  <h1><%= post.title %></h1>
+  <p class="meta">by <%= post.author_name %> &middot; <%= new Date(post.created_at).toLocaleDateString() %> &middot; <%= post.views %> views</p>
+  <% if (post.status !== 'published') { %>
+    <p class="form-error">Status: <%= post.status %> (only visible to you and admins)</p>
+  <% } %>
+  <% if (post.cover_image) { %><img class="cover" src="<%= post.cover_image %>" alt=""><% } %>
+  <div class="rich-content"><%- post.content_html %></div>
+</article>
+
+<section id="comments" class="comments">
+  <h2>Comments &amp; Reviews (<%= comments.length %>)</h2>
+
+  <% if (currentUser) { %>
+    <form method="POST" action="/blog/<%= post.slug %>/comment" class="form comment-form">
+      <label>Your rating (optional)
+        <select name="rating">
+          <option value="">No rating</option>
+          <option value="5">5 - Excellent</option>
+          <option value="4">4 - Good</option>
+          <option value="3">3 - Average</option>
+          <option value="2">2 - Below average</option>
+          <option value="1">1 - Poor</option>
+        </select>
+      </label>
+      <label>Comment<textarea name="body" rows="3" required></textarea></label>
+      <button class="btn-solid" type="submit">Post Comment</button>
+    </form>
+  <% } else { %>
+    <p><a href="/login">Log in</a> to leave a comment or review.</p>
+  <% } %>
+
+  <ul class="comment-list">
+    <% comments.forEach(function(c) { %>
+      <li>
+        <strong><%= c.user_name %></strong>
+        <% if (c.rating) { %><span class="stars">&starf;<%= c.rating %>/5</span><% } %>
+        <span class="date"><%= new Date(c.created_at).toLocaleDateString() %></span>
+        <p><%= c.body %></p>
+      </li>
+    <% }) %>
+  </ul>
+</section>
+<%- include('partials/footer') %>

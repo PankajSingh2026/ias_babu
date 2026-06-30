@@ -1,0 +1,18 @@
+<%- include('partials/header') %>
+
+<section class="list-page">
+  <h1><%= heading %></h1>
+  <ul class="full-list">
+    <% items.forEach(function(item) { %>
+      <li class="<%= item.is_highlighted ? 'highlight' : '' %>">
+        <a href="<%= item.link_url %>" target="_blank" rel="noopener"><%= item.title %></a>
+        <span class="date"><%= new Date(item.created_at).toLocaleDateString() %></span>
+      </li>
+    <% }) %>
+    <% if (items.length === 0) { %>
+      <li class="empty">No entries yet.</li>
+    <% } %>
+  </ul>
+</section>
+
+<%- include('partials/footer') %>

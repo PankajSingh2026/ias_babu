@@ -1,0 +1,11 @@
+<%- include('../partials/admin-header') %>
+<h1>Dashboard</h1>
+<div class="stat-grid">
+  <div class="stat-card"><span class="num"><%= stats.notifications %></span><span>Notifications</span></div>
+  <div class="stat-card"><span class="num"><%= stats.pending_blogs %></span><span>Blog posts pending review</span></div>
+  <div class="stat-card"><span class="num"><%= stats.published_blogs %></span><span>Published blog posts</span></div>
+  <div class="stat-card"><span class="num"><%= stats.syllabus_pages %></span><span>Syllabus pages</span></div>
+  <div class="stat-card"><span class="num"><%= stats.users %></span><span>Registered users</span></div>
+</div>
+<p class="hint">Use the sidebar to manage navigation links, post job/admit-card/result notifications, moderate blog submissions, write syllabus pages, and edit static site pages.</p>
+<%- include('../partials/admin-footer') %>

@@ -1,0 +1,47 @@
+<%- include('../partials/admin-header') %>
+<h1>Jobs / Admit Card / Result Notifications</h1>
+
+<h2>Add New</h2>
+<form method="POST" action="/admin/notifications" class="form inline-form">
+  <select name="category" required>
+    <option value="job">Latest Job</option>
+    <option value="admit_card">Admit Card</option>
+    <option value="result">Result</option>
+  </select>
+  <input type="text" name="title" placeholder="Notification title" required style="flex:2">
+  <input type="text" name="link_url" placeholder="https://link-to-notification" required style="flex:2">
+  <input type="number" name="sort_order" placeholder="Order" value="0" style="width:80px">
+  <label class="checkbox-label"><input type="checkbox" name="is_highlighted"> Highlight</label>
+  <button class="btn-solid" type="submit">Add</button>
+</form>
+
+<table class="admin-table">
+  <thead><tr><th>Category</th><th>Title</th><th>Link</th><th>Order</th><th>Highlight</th><th>Published</th><th>Actions</th></tr></thead>
+  <tbody>
+    <% items.forEach(function(n) { %>
+      <tr>
+        <form method="POST" action="/admin/notifications/<%= n.id %>/update">
+          <td>
+            <select name="category">
+              <option value="job" <%= n.category==='job'?'selected':'' %>>Latest Job</option>
+              <option value="admit_card" <%= n.category==='admit_card'?'selected':'' %>>Admit Card</option>
+              <option value="result" <%= n.category==='result'?'selected':'' %>>Result</option>
+            </select>
+          </td>
+          <td><input type="text" name="title" value="<%= n.title %>"></td>
+          <td><input type="text" name="link_url" value="<%= n.link_url %>" style="width:220px"></td>
+          <td><input type="number" name="sort_order" value="<%= n.sort_order %>" style="width:60px"></td>
+          <td><input type="checkbox" name="is_highlighted" <%= n.is_highlighted ? 'checked' : '' %>></td>
+          <td><input type="checkbox" name="is_published" <%= n.is_published ? 'checked' : '' %>></td>
+          <td>
+            <button class="btn-small" type="submit">Save</button>
+        </form>
+        <form method="POST" action="/admin/notifications/<%= n.id %>/delete" style="display:inline" onsubmit="return confirm('Delete?')">
+            <button class="btn-small danger" type="submit">Delete</button>
+        </form>
+          </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+<%- include('../partials/admin-footer') %>

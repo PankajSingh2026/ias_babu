@@ -1,0 +1,22 @@
+<%- include('../partials/admin-header') %>
+<h1>New Blog Post</h1>
+<form method="POST" action="/admin/blog/new" class="form" id="blog-form">
+  <label>Title<input type="text" name="title" required></label>
+  <label>Cover image URL (optional)<input type="text" name="cover_image"></label>
+  <label>Content</label>
+  <div id="editor"></div>
+  <textarea name="content_html" id="content_html" style="display:none"></textarea>
+  <button class="btn-solid" type="submit">Publish</button>
+</form>
+
+<script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+<script>
+  let editorInstance;
+  ClassicEditor.create(document.querySelector('#editor'), {
+    simpleUpload: { uploadUrl: '/admin/upload-image' }
+  }).then(editor => { editorInstance = editor; });
+  document.getElementById('blog-form').addEventListener('submit', function () {
+    document.getElementById('content_html').value = editorInstance.getData();
+  });
+</script>
+<%- include('../partials/admin-footer') %>

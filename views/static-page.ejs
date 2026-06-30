@@ -1,0 +1,6 @@
+<%- include('partials/header') %>
+<section class="list-page">
+  <h1><%= page ? page.title : title %></h1>
+  <div class="rich-content"><%- page ? page.content_html : '' %></div>
+</section>
+<%- include('partials/footer') %>

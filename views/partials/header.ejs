@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | <%= siteName %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="navbar">
+    <a class="brand" href="/"><%= siteName %></a>
+    <nav class="nav-links">
+      <% navLinks.forEach(function(link) { %>
+        <a href="<%= link.url %>"><%= link.label %></a>
+      <% }) %>
+    </nav>
+    <div class="nav-auth">
+      <% if (currentUser) { %>
+        <span class="hi">Hi, <%= currentUser.name %></span>
+        <% if (currentUser.role === 'admin') { %>
+          <a href="/admin" class="btn-ghost">Admin</a>
+        <% } %>
+        <form action="/logout" method="POST" style="display:inline">
+          <button class="btn-ghost" type="submit">Log out</button>
+        </form>
+      <% } else { %>
+        <a href="/login" class="btn-ghost">Log in</a>
+        <a href="/signup" class="btn-solid">Sign up</a>
+      <% } %>
+    </div>
+  </header>
+  <main class="page">

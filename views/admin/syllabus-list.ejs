@@ -1,0 +1,24 @@
+<%- include('../partials/admin-header') %>
+<div class="section-head">
+  <h1>Syllabus Pages</h1>
+  <a class="btn-solid" href="/admin/syllabus/new">New Syllabus Page</a>
+</div>
+<table class="admin-table">
+  <thead><tr><th>Title</th><th>Published</th><th>Updated</th><th>Actions</th></tr></thead>
+  <tbody>
+    <% pages.forEach(function(p) { %>
+      <tr>
+        <td><a href="/syllabus/<%= p.slug %>" target="_blank"><%= p.title %></a></td>
+        <td><%= p.is_published ? 'Yes' : 'No' %></td>
+        <td><%= new Date(p.updated_at).toLocaleDateString() %></td>
+        <td>
+          <a class="btn-small" href="/admin/syllabus/<%= p.id %>/edit">Edit</a>
+          <form method="POST" action="/admin/syllabus/<%= p.id %>/delete" style="display:inline" onsubmit="return confirm('Delete this page?')">
+            <button class="btn-small danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+<%- include('../partials/admin-footer') %>

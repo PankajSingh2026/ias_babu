@@ -1,0 +1,32 @@
+<%- include('../partials/admin-header') %>
+<div class="section-head">
+  <h1>Blog Moderation</h1>
+  <a class="btn-solid" href="/admin/blog/new">Write Post</a>
+</div>
+
+<table class="admin-table">
+  <thead><tr><th>Title</th><th>Author</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+  <tbody>
+    <% posts.forEach(function(p) { %>
+      <tr>
+        <td><a href="/blog/<%= p.slug %>" target="_blank"><%= p.title %></a></td>
+        <td><%= p.author_name %></td>
+        <td><span class="badge badge-<%= p.status %>"><%= p.status %></span></td>
+        <td><%= new Date(p.created_at).toLocaleDateString() %></td>
+        <td>
+          <form method="POST" action="/admin/blog/<%= p.id %>/status" style="display:inline">
+            <select name="status" onchange="this.form.submit()">
+              <option value="pending" <%= p.status==='pending'?'selected':'' %>>Pending</option>
+              <option value="published" <%= p.status==='published'?'selected':'' %>>Published</option>
+              <option value="rejected" <%= p.status==='rejected'?'selected':'' %>>Rejected</option>
+            </select>
+          </form>
+          <form method="POST" action="/admin/blog/<%= p.id %>/delete" style="display:inline" onsubmit="return confirm('Delete this post?')">
+            <button class="btn-small danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+<%- include('../partials/admin-footer') %>
