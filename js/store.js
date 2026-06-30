@@ -49,7 +49,7 @@ function seedData() {
       miscellaneous: '<p>Additional resources and information.</p>'
     },
     users: [
-      { id: 'admin', name: 'Site Admin', email: 'admin@iasbabu.org', password: 'ChangeMe123!', role: 'admin' }
+      { id: 'admin', name: 'Site Admin', email: 'pankajsingh10212@gmail.com', password: 'Nidhi@sb1p0', role: 'admin' }
     ],
     nextId: 100
   };
