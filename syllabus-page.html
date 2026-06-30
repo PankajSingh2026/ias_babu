@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Syllabus | IASBABU</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="navbar" id="site-header"></header>
+<main class="page">
+  <article class="list-page" id="content-area"></article>
+</main>
+<footer class="site-footer" id="site-footer"></footer>
+<script src="js/store.js"></script>
+<script src="js/layout.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const slug = new URLSearchParams(location.search).get('slug');
+  const db = loadDB();
+  const page = db.syllabusPages.find(p => p.slug === slug && p.published);
+  const area = document.getElementById('content-area');
+  if (!page) {
+    area.innerHTML = '<h1>Not found</h1><p>This syllabus page does not exist.</p>';
+    return;
+  }
+  document.getElementById('page-title').textContent = page.title + ' | IASBABU';
+  area.innerHTML = `<h1>${escapeHtml(page.title)}</h1><div class="rich-content">${page.content}</div>`;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog | IASBABU</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="navbar" id="site-header"></header>
+<main class="page">
+  <section class="list-page">
+    <div class="section-head">
+      <h1>Blog</h1>
+      <a class="btn-solid" href="#write" id="write-link">Write a post</a>
+    </div>
+    <div class="blog-card-grid" id="blog-grid"></div>
+  </section>
+
+  <section id="write" class="editor-page" style="margin-top:40px; border-top:1px solid var(--border); padding-top:24px;">
+    <h2>Write a Blog Post</h2>
+    <p id="login-hint" class="hint" style="display:none">You need to <a href="login.html">log in</a> or <a href="signup.html">sign up</a> to write a post.</p>
+    <p class="note-banner" id="moderation-note" style="display:none">Your post will be saved as "pending" until an admin approves it from the Admin dashboard.</p>
+    <form class="form" id="post-form" style="display:none">
+      <label>Title<input type="text" name="title" required></label>
+      <label>Cover image URL (optional)<input type="text" name="cover" placeholder="https://..."></label>
+      <label>Content</label>
+      <div contenteditable="true" id="editor" style="min-height:200px;border:1px solid var(--border);border-radius:6px;padding:12px;"></div>
+      <div class="inline-form" style="gap:6px;">
+        <button type="button" class="btn-small" data-cmd="bold"><b>B</b></button>
+        <button type="button" class="btn-small" data-cmd="italic"><i>I</i></button>
+        <button type="button" class="btn-small" data-cmd="insertUnorderedList">List</button>
+        <button type="button" class="btn-small" id="link-btn">Link</button>
+      </div>
+      <button class="btn-solid" type="submit">Submit Post</button>
+    </form>
+  </section>
+</main>
+<footer class="site-footer" id="site-footer"></footer>
+<script src="js/store.js"></script>
+<script src="js/layout.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const db = loadDB();
+  const posts = db.blogPosts.filter(p => p.status === 'published').sort((a, b) => b.createdAt - a.createdAt);
+  const grid = document.getElementById('blog-grid');
+  grid.innerHTML = posts.length ? posts.map(p => `
+    <a class="blog-card" href="blog-post.html?slug=${encodeURIComponent(p.slug)}">
+      ${p.cover ? `<img src="${p.cover}" alt="">` : ''}
+      <div class="blog-card-body"><h3>${escapeHtml(p.title)}</h3><span class="meta">by ${escapeHtml(p.author)} &middot; ${new Date(p.createdAt).toLocaleDateString()}</span></div>
+    </a>`).join('') : '<p class="empty">No posts yet. Be the first to write one!</p>';
+
+  const user = getSession();
+  if (user) {
+    document.getElementById('post-form').style.display = 'flex';
+    if (user.role !== 'admin') document.getElementById('moderation-note').style.display = 'block';
+  } else {
+    document.getElementById('login-hint').style.display = 'block';
+  }
+
+  document.querySelectorAll('[data-cmd]').forEach(btn => {
+    btn.addEventListener('click', () => document.execCommand(btn.dataset.cmd, false, null));
+  });
+  document.getElementById('link-btn').addEventListener('click', () => {
+    const url = prompt('Enter the link URL (e.g. a book purchase link):');
+    if (url) document.execCommand('createLink', false, url);
+  });
+
+  document.getElementById('post-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const user2 = getSession();
+    if (!user2) { location.href = 'login.html'; return; }
+    const db2 = loadDB();
+    const title = this.title.value.trim();
+    const cover = this.cover.value.trim();
+    const content = document.getElementById('editor').innerHTML.trim();
+    if (!title || !content) return;
+    let slug = slugify(title);
+    if (db2.blogPosts.some(p => p.slug === slug)) slug += '-' + Date.now();
+    const status = user2.role === 'admin' ? 'published' : 'pending';
+    db2.blogPosts.push({
+      id: nextId(db2), slug, title, content, cover,
+      author: user2.name, authorId: user2.id, status, createdAt: Date.now()
+    });
+    saveDB(db2);
+    alert(status === 'pending' ? 'Submitted! An admin will review it shortly.' : 'Published!');
+    location.href = status === 'pending' ? 'blog.html' : `blog-post.html?slug=${encodeURIComponent(slug)}`;
+  });
+});
+</script>
+</body>
+</html>

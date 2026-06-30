@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard | IASBABU</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="admin-brand">IASBABU Admin</div>
+    <nav>
+      <a href="index.html">View Site</a>
+      <button class="link-btn" id="logout-btn" type="button">Log out</button>
+    </nav>
+  </aside>
+  <main class="admin-main" id="admin-main">
+    <p id="guard-message" style="display:none">Redirecting to login...</p>
+
+    <div id="admin-content" style="display:none">
+      <h1>Admin Dashboard</h1>
+      <p class="note-banner">This is a static, browser-only demo: data is saved in this browser's local storage and is not shared with other visitors. See the README for how to wire this up to a real shared backend.</p>
+
+      <div class="admin-tabs">
+        <button class="admin-tab-btn active" data-tab="nav">Navigation</button>
+        <button class="admin-tab-btn" data-tab="notif">Jobs / Admit Card / Result</button>
+        <button class="admin-tab-btn" data-tab="blog">Blog Moderation</button>
+        <button class="admin-tab-btn" data-tab="syllabus">Syllabus</button>
+        <button class="admin-tab-btn" data-tab="pages">Site Pages</button>
+        <button class="admin-tab-btn" data-tab="users">Users</button>
+      </div>
+
+      <!-- ===== NAV TAB ===== -->
+      <section class="admin-tab-panel active" id="tab-nav">
+        <h2>Navigation Bar</h2>
+        <table class="admin-table"><thead><tr><th>Order</th><th>Label</th><th>URL</th><th>Actions</th></tr></thead>
+          <tbody id="nav-rows"></tbody></table>
+        <h3>Add Nav Link</h3>
+        <form class="form inline-form" id="nav-form">
+          <input type="text" name="label" placeholder="Label" required>
+          <input type="text" name="url" placeholder="page.html" required>
+          <input type="number" name="order" placeholder="Order" value="0" style="width:80px">
+          <button class="btn-solid" type="submit">Add</button>
+        </form>
+      </section>
+
+      <!-- ===== NOTIFICATIONS TAB ===== -->
+      <section class="admin-tab-panel" id="tab-notif">
+        <h2>Jobs / Admit Card / Result</h2>
+        <form class="form inline-form" id="notif-form">
+          <select name="category" required>
+            <option value="job">Latest Job</option>
+            <option value="admit_card">Admit Card</option>
+            <option value="result">Result</option>
+          </select>
+          <input type="text" name="title" placeholder="Title" required style="flex:2">
+          <input type="text" name="url" placeholder="https://link" required style="flex:2">
+          <label class="checkbox-label"><input type="checkbox" name="highlighted"> Highlight</label>
+          <button class="btn-solid" type="submit">Add</button>
+        </form>
+        <table class="admin-table"><thead><tr><th>Category</th><th>Title</th><th>Link</th><th>Highlight</th><th>Actions</th></tr></thead>
+          <tbody id="notif-rows"></tbody></table>
+      </section>
+
+      <!-- ===== BLOG TAB ===== -->
+      <section class="admin-tab-panel" id="tab-blog">
+        <div class="section-head"><h2>Blog Moderation</h2></div>
+        <table class="admin-table"><thead><tr><th>Title</th><th>Author</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="blog-rows"></tbody></table>
+      </section>
+
+      <!-- ===== SYLLABUS TAB ===== -->
+      <section class="admin-tab-panel" id="tab-syllabus">
+        <div class="section-head"><h2>Syllabus Pages</h2></div>
+        <table class="admin-table"><thead><tr><th>Title</th><th>Published</th><th>Actions</th></tr></thead>
+          <tbody id="syllabus-rows"></tbody></table>
+
+        <h3 id="syllabus-form-heading">New Syllabus Page</h3>
+        <p class="hint">Type the syllabus like a Word document. Select text and click "Link" to paste a book purchase URL.</p>
+        <form class="form" id="syllabus-form">
+          <input type="hidden" name="editId">
+          <label>Title<input type="text" name="title" required></label>
+          <label class="checkbox-label"><input type="checkbox" name="published" checked> Published</label>
+          <label>Content</label>
+          <div class="inline-form" style="gap:6px;">
+            <button type="button" class="btn-small" data-editor="syllabus-editor" data-cmd="bold"><b>B</b></button>
+            <button type="button" class="btn-small" data-editor="syllabus-editor" data-cmd="italic"><i>I</i></button>
+            <button type="button" class="btn-small" data-editor="syllabus-editor" data-cmd="formatBlock" data-value="H2">H2</button>
+            <button type="button" class="btn-small" data-editor="syllabus-editor" data-cmd="insertUnorderedList">List</button>
+            <button type="button" class="btn-small link-cmd" data-editor="syllabus-editor">Link</button>
+            <button type="button" class="btn-small image-cmd" data-editor="syllabus-editor">Image</button>
+            <button type="button" class="btn-small table-cmd" data-editor="syllabus-editor">Table</button>
+          </div>
+          <div contenteditable="true" id="syllabus-editor" style="min-height:240px;border:1px solid var(--border);border-radius:6px;padding:12px;"></div>
+          <div>
+            <button class="btn-solid" type="submit">Save Page</button>
+            <button class="btn-small" type="button" id="syllabus-cancel">Clear / New</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ===== SITE PAGES TAB ===== -->
+      <section class="admin-tab-panel" id="tab-pages">
+        <h2>Site Pages</h2>
+        <div class="page-block">
+          <h3>Home Intro</h3>
+          <div class="inline-form" style="gap:6px;">
+            <button type="button" class="btn-small" data-editor="home_intro-editor" data-cmd="bold"><b>B</b></button>
+            <button type="button" class="btn-small" data-editor="home_intro-editor" data-cmd="italic"><i>I</i></button>
+            <button type="button" class="btn-small link-cmd" data-editor="home_intro-editor">Link</button>
+          </div>
+          <div contenteditable="true" id="home_intro-editor" style="min-height:100px;border:1px solid var(--border);border-radius:6px;padding:12px;"></div>
+          <button class="btn-small" type="button" data-save-page="home_intro">Save</button>
+        </div>
+        <div class="page-block">
+          <h3>Miscellaneous</h3>
+          <div class="inline-form" style="gap:6px;">
+            <button type="button" class="btn-small" data-editor="miscellaneous-editor" data-cmd="bold"><b>B</b></button>
+            <button type="button" class="btn-small" data-editor="miscellaneous-editor" data-cmd="italic"><i>I</i></button>
+            <button type="button" class="btn-small link-cmd" data-editor="miscellaneous-editor">Link</button>
+          </div>
+          <div contenteditable="true" id="miscellaneous-editor" style="min-height:100px;border:1px solid var(--border);border-radius:6px;padding:12px;"></div>
+          <button class="btn-small" type="button" data-save-page="miscellaneous">Save</button>
+        </div>
+      </section>
+
+      <!-- ===== USERS TAB ===== -->
+      <section class="admin-tab-panel" id="tab-users">
+        <h2>Users</h2>
+        <table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
+          <tbody id="user-rows"></tbody></table>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="js/store.js"></script>
+<script src="js/layout.js"></script>
+<script>
+const user = requireAdminRedirect();
+if (user) {
+  document.getElementById('admin-content').style.display = 'block';
+} else {
+  document.getElementById('guard-message').style.display = 'block';
+}
+
+document.getElementById('logout-btn').addEventListener('click', () => { clearSession(); location.href = 'login.html'; });
+
+document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.admin-tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// generic toolbar wiring
+function wireToolbar() {
+  document.querySelectorAll('[data-cmd]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById(btn.dataset.editor).focus();
+      document.execCommand(btn.dataset.cmd, false, btn.dataset.value || null);
+    });
+  });
+  document.querySelectorAll('.link-cmd').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const url = prompt('Enter the link URL (e.g. a book purchase link):');
+      document.getElementById(btn.dataset.editor).focus();
+      if (url) document.execCommand('createLink', false, url);
+    });
+  });
+  document.querySelectorAll('.image-cmd').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const url = prompt('Enter image URL:');
+      document.getElementById(btn.dataset.editor).focus();
+      if (url) document.execCommand('insertImage', false, url);
+    });
+  });
+  document.querySelectorAll('.table-cmd').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const rows = parseInt(prompt('Rows?', '2'), 10) || 2;
+      const cols = parseInt(prompt('Columns?', '2'), 10) || 2;
+      let html = '<table><tbody>';
+      for (let r = 0; r < rows; r++) {
+        html += '<tr>';
+        for (let c = 0; c < cols; c++) html += '<td>&nbsp;</td>';
+        html += '</tr>';
+      }
+      html += '</tbody></table><p></p>';
+      document.getElementById(btn.dataset.editor).focus();
+      document.execCommand('insertHTML', false, html);
+    });
+  });
+}
+wireToolbar();
+
+// ---------- NAV TAB ----------
+function renderNav() {
+  const db = loadDB();
+  const links = [...db.navLinks].sort((a, b) => a.order - b.order);
+  document.getElementById('nav-rows').innerHTML = links.map(l => `
+    <tr>
+      <td>${l.order}</td><td>${escapeHtml(l.label)}</td><td>${escapeHtml(l.url)}</td>
+      <td><button class="btn-small danger" data-del-nav="${l.id}">Delete</button></td>
+    </tr>`).join('');
+  document.querySelectorAll('[data-del-nav]').forEach(btn => btn.addEventListener('click', () => {
+    const db2 = loadDB();
+    db2.navLinks = db2.navLinks.filter(l => l.id != btn.dataset.delNav);
+    saveDB(db2); renderNav(); renderLayout();
+  }));
+}
+document.getElementById('nav-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const db = loadDB();
+  db.navLinks.push({ id: nextId(db), label: this.label.value, url: this.url.value, order: parseInt(this.order.value, 10) || 0 });
+  saveDB(db); this.reset(); renderNav(); renderLayout();
+});
+
+// ---------- NOTIFICATIONS TAB ----------
+function renderNotif() {
+  const db = loadDB();
+  document.getElementById('notif-rows').innerHTML = db.notifications.map(n => `
+    <tr>
+      <td>${n.category}</td><td>${escapeHtml(n.title)}</td><td>${escapeHtml(n.url)}</td>
+      <td>${n.highlighted ? 'Yes' : ''}</td>
+      <td><button class="btn-small danger" data-del-notif="${n.id}">Delete</button></td>
+    </tr>`).join('');
+  document.querySelectorAll('[data-del-notif]').forEach(btn => btn.addEventListener('click', () => {
+    const db2 = loadDB();
+    db2.notifications = db2.notifications.filter(n => n.id != btn.dataset.delNotif);
+    saveDB(db2); renderNotif();
+  }));
+}
+document.getElementById('notif-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const db = loadDB();
+  db.notifications.push({
+    id: nextId(db), category: this.category.value, title: this.title.value,
+    url: this.url.value, highlighted: this.highlighted.checked
+  });
+  saveDB(db); this.reset(); renderNotif();
+});
+
+// ---------- BLOG TAB ----------
+function renderBlog() {
+  const db = loadDB();
+  document.getElementById('blog-rows').innerHTML = db.blogPosts.map(p => `
+    <tr>
+      <td><a href="blog-post.html?slug=${encodeURIComponent(p.slug)}" target="_blank">${escapeHtml(p.title)}</a></td>
+      <td>${escapeHtml(p.author)}</td>
+      <td><span class="badge badge-${p.status}">${p.status}</span></td>
+      <td>
+        <select data-status-for="${p.id}">
+          <option value="pending" ${p.status === 'pending' ? 'selected' : ''}>Pending</option>
+          <option value="published" ${p.status === 'published' ? 'selected' : ''}>Published</option>
+          <option value="rejected" ${p.status === 'rejected' ? 'selected' : ''}>Rejected</option>
+        </select>
+        <button class="btn-small danger" data-del-blog="${p.id}">Delete</button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="4" class="empty">No posts yet.</td></tr>';
+
+  document.querySelectorAll('[data-status-for]').forEach(sel => sel.addEventListener('change', () => {
+    const db2 = loadDB();
+    const post = db2.blogPosts.find(p => p.id == sel.dataset.statusFor);
+    if (post) post.status = sel.value;
+    saveDB(db2); renderBlog();
+  }));
+  document.querySelectorAll('[data-del-blog]').forEach(btn => btn.addEventListener('click', () => {
+    if (!confirm('Delete this post?')) return;
+    const db2 = loadDB();
+    db2.blogPosts = db2.blogPosts.filter(p => p.id != btn.dataset.delBlog);
+    saveDB(db2); renderBlog();
+  }));
+}
+
+// ---------- SYLLABUS TAB ----------
+function renderSyllabus() {
+  const db = loadDB();
+  document.getElementById('syllabus-rows').innerHTML = db.syllabusPages.map(p => `
+    <tr>
+      <td><a href="syllabus-page.html?slug=${encodeURIComponent(p.slug)}" target="_blank">${escapeHtml(p.title)}</a></td>
+      <td>${p.published ? 'Yes' : 'No'}</td>
+      <td>
+        <button class="btn-small" data-edit-syllabus="${p.id}">Edit</button>
+        <button class="btn-small danger" data-del-syllabus="${p.id}">Delete</button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="3" class="empty">No syllabus pages yet.</td></tr>';
+
+  document.querySelectorAll('[data-edit-syllabus]').forEach(btn => btn.addEventListener('click', () => {
+    const db2 = loadDB();
+    const page = db2.syllabusPages.find(p => p.id == btn.dataset.editSyllabus);
+    if (!page) return;
+    const form = document.getElementById('syllabus-form');
+    form.editId.value = page.id;
+    form.title.value = page.title;
+    form.published.checked = page.published;
+    document.getElementById('syllabus-editor').innerHTML = page.content;
+    document.getElementById('syllabus-form-heading').textContent = 'Edit Syllabus Page';
+    form.scrollIntoView({ behavior: 'smooth' });
+  }));
+  document.querySelectorAll('[data-del-syllabus]').forEach(btn => btn.addEventListener('click', () => {
+    if (!confirm('Delete this page?')) return;
+    const db2 = loadDB();
+    db2.syllabusPages = db2.syllabusPages.filter(p => p.id != btn.dataset.delSyllabus);
+    saveDB(db2); renderSyllabus();
+  }));
+}
+document.getElementById('syllabus-cancel').addEventListener('click', () => {
+  const form = document.getElementById('syllabus-form');
+  form.reset(); form.editId.value = '';
+  document.getElementById('syllabus-editor').innerHTML = '';
+  document.getElementById('syllabus-form-heading').textContent = 'New Syllabus Page';
+});
+document.getElementById('syllabus-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const db = loadDB();
+  const content = document.getElementById('syllabus-editor').innerHTML.trim();
+  const title = this.title.value.trim();
+  if (!title || !content) return;
+  if (this.editId.value) {
+    const page = db.syllabusPages.find(p => p.id == this.editId.value);
+    if (page) { page.title = title; page.content = content; page.published = this.published.checked; page.updatedAt = Date.now(); }
+  } else {
+    let slug = slugify(title);
+    if (db.syllabusPages.some(p => p.slug === slug)) slug += '-' + Date.now();
+    db.syllabusPages.push({ id: nextId(db), slug, title, content, published: this.published.checked, updatedAt: Date.now() });
+  }
+  saveDB(db);
+  this.reset(); this.editId.value = '';
+  document.getElementById('syllabus-editor').innerHTML = '';
+  document.getElementById('syllabus-form-heading').textContent = 'New Syllabus Page';
+  renderSyllabus();
+});
+
+// ---------- SITE PAGES TAB ----------
+function renderPages() {
+  const db = loadDB();
+  document.getElementById('home_intro-editor').innerHTML = db.sitePages.home_intro || '';
+  document.getElementById('miscellaneous-editor').innerHTML = db.sitePages.miscellaneous || '';
+}
+document.querySelectorAll('[data-save-page]').forEach(btn => btn.addEventListener('click', () => {
+  const key = btn.dataset.savePage;
+  const db = loadDB();
+  db.sitePages[key] = document.getElementById(key + '-editor').innerHTML.trim();
+  saveDB(db);
+  alert('Saved.');
+}));
+
+// ---------- USERS TAB ----------
+function renderUsers() {
+  const db = loadDB();
+  document.getElementById('user-rows').innerHTML = db.users.map(u => `
+    <tr>
+      <td>${escapeHtml(u.name)}</td><td>${escapeHtml(u.email)}</td>
+      <td>
+        <select data-role-for="${u.id}">
+          <option value="user" ${u.role === 'user' ? 'selected' : ''}>user</option>
+          <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>admin</option>
+        </select>
+      </td>
+      <td>${u.id === 'admin' ? '<span class="hint">primary admin</span>' : `<button class="btn-small danger" data-del-user="${u.id}">Delete</button>`}</td>
+    </tr>`).join('');
+  document.querySelectorAll('[data-role-for]').forEach(sel => sel.addEventListener('change', () => {
+    const db2 = loadDB();
+    const u = db2.users.find(x => x.id === sel.dataset.roleFor);
+    if (u) u.role = sel.value;
+    saveDB(db2); renderUsers();
+  }));
+  document.querySelectorAll('[data-del-user]').forEach(btn => btn.addEventListener('click', () => {
+    if (!confirm('Delete this user?')) return;
+    const db2 = loadDB();
+    db2.users = db2.users.filter(u => u.id !== btn.dataset.delUser);
+    saveDB(db2); renderUsers();
+  }));
+}
+
+if (user) {
+  renderNav(); renderNotif(); renderBlog(); renderSyllabus(); renderPages(); renderUsers();
+}
+</script>
+</body>
+</html>

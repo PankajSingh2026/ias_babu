@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Syllabus | IASBABU</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="navbar" id="site-header"></header>
+<main class="page">
+  <section class="list-page">
+    <h1>Syllabus</h1>
+    <ul class="full-list" id="list"></ul>
+  </section>
+</main>
+<footer class="site-footer" id="site-footer"></footer>
+<script src="js/store.js"></script>
+<script src="js/layout.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const db = loadDB();
+  const pages = db.syllabusPages.filter(p => p.published);
+  document.getElementById('list').innerHTML = pages.length
+    ? pages.map(p => `<li><a href="syllabus-page.html?slug=${encodeURIComponent(p.slug)}">${escapeHtml(p.title)}</a></li>`).join('')
+    : '<li class="empty">No syllabus pages published yet.</li>';
+});
+</script>
+</body>
+</html>

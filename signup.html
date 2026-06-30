@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up | IASBABU</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="navbar" id="site-header"></header>
+<main class="page">
+  <section class="auth-page">
+    <h1>Sign Up</h1>
+    <p id="error" class="form-error" style="display:none"></p>
+    <form class="form" id="signup-form">
+      <label>Name<input type="text" name="name" required></label>
+      <label>Email<input type="email" name="email" required></label>
+      <label>Password (min 8 characters)<input type="password" name="password" required minlength="8"></label>
+      <button class="btn-solid" type="submit">Create Account</button>
+    </form>
+    <p>Already have an account? <a href="login.html">Log in</a></p>
+  </section>
+</main>
+<footer class="site-footer" id="site-footer"></footer>
+<script src="js/store.js"></script>
+<script src="js/layout.js"></script>
+<script>
+document.getElementById('signup-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const name = this.name.value.trim();
+  const email = this.email.value.trim().toLowerCase();
+  const password = this.password.value;
+  const errorEl = document.getElementById('error');
+  const db = loadDB();
+
+  if (db.users.some(u => u.email.toLowerCase() === email)) {
+    errorEl.textContent = 'An account with this email already exists.';
+    errorEl.style.display = 'block';
+    return;
+  }
+  const id = 'u' + nextId(db);
+  db.users.push({ id, name, email, password, role: 'user' });
+  saveDB(db);
+  setSession({ id, name, email, role: 'user' });
+  location.href = 'blog.html';
+});
+</script>
+</body>
+</html>

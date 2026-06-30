@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home | IASBABU</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="navbar" id="site-header"></header>
+<main class="page">
+  <section class="hero" id="home-intro"></section>
+
+  <section class="notif-grid">
+    <div class="notif-box">
+      <div class="notif-box-header">Latest Jobs</div>
+      <div class="notif-scroller"><ul class="notif-track" id="track-job"></ul></div>
+      <a class="notif-viewall" href="latest-jobs.html">View all &rarr;</a>
+    </div>
+    <div class="notif-box">
+      <div class="notif-box-header">Admit Card</div>
+      <div class="notif-scroller"><ul class="notif-track" id="track-admit_card"></ul></div>
+      <a class="notif-viewall" href="admit-card.html">View all &rarr;</a>
+    </div>
+    <div class="notif-box">
+      <div class="notif-box-header">Result</div>
+      <div class="notif-scroller"><ul class="notif-track" id="track-result"></ul></div>
+      <a class="notif-viewall" href="result.html">View all &rarr;</a>
+    </div>
+  </section>
+
+  <section class="home-blog">
+    <div class="section-head">
+      <h2>From the Blog</h2>
+      <a href="blog.html">View all posts &rarr;</a>
+    </div>
+    <div class="blog-card-grid" id="home-blog-grid"></div>
+  </section>
+</main>
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="js/store.js"></script>
+<script src="js/layout.js"></script>
+<script>
+function renderNotifTrack(category, elId) {
+  const db = loadDB();
+  const items = db.notifications.filter(n => n.category === category);
+  const el = document.getElementById(elId);
+  if (!el) return;
+  if (items.length === 0) { el.innerHTML = '<li class="empty">No entries yet.</li>'; return; }
+  const li = items.map(n => `<li class="${n.highlighted ? 'highlight' : ''}"><a href="${n.url}" target="_blank" rel="noopener">${escapeHtml(n.title)}</a></li>`).join('');
+  el.innerHTML = li + li; // duplicate for seamless loop
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const db = loadDB();
+  document.getElementById('home-intro').innerHTML = db.sitePages.home_intro || '';
+
+  renderNotifTrack('job', 'track-job');
+  renderNotifTrack('admit_card', 'track-admit_card');
+  renderNotifTrack('result', 'track-result');
+
+  const posts = db.blogPosts.filter(p => p.status === 'published').sort((a, b) => b.createdAt - a.createdAt).slice(0, 3);
+  const grid = document.getElementById('home-blog-grid');
+  grid.innerHTML = posts.length ? posts.map(p => `
+    <a class="blog-card" href="blog-post.html?slug=${encodeURIComponent(p.slug)}">
+      ${p.cover ? `<img src="${p.cover}" alt="">` : ''}
+      <div class="blog-card-body"><h3>${escapeHtml(p.title)}</h3><span class="meta">by ${escapeHtml(p.author)}</span></div>
+    </a>`).join('') : '<p class="empty">No blog posts published yet.</p>';
+});
+</script>
+</body>
+</html>

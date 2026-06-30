@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log In | IASBABU</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="navbar" id="site-header"></header>
+<main class="page">
+  <section class="auth-page">
+    <h1>Log In</h1>
+    <p id="error" class="form-error" style="display:none"></p>
+    <form class="form" id="login-form">
+      <label>Email<input type="email" name="email" required></label>
+      <label>Password<input type="password" name="password" required></label>
+      <button class="btn-solid" type="submit">Log In</button>
+    </form>
+    <p>No account? <a href="signup.html">Sign up</a></p>
+    <p class="hint">Demo admin: admin@iasbabu.org / ChangeMe123! (change this in js/store.js before publishing).</p>
+  </section>
+</main>
+<footer class="site-footer" id="site-footer"></footer>
+<script src="js/store.js"></script>
+<script src="js/layout.js"></script>
+<script>
+document.getElementById('login-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const email = this.email.value.trim().toLowerCase();
+  const password = this.password.value;
+  const db = loadDB();
+  const user = db.users.find(u => u.email.toLowerCase() === email && u.password === password);
+  const errorEl = document.getElementById('error');
+  if (!user) {
+    errorEl.textContent = 'Invalid credentials.';
+    errorEl.style.display = 'block';
+    return;
+  }
+  setSession({ id: user.id, name: user.name, email: user.email, role: user.role });
+  location.href = user.role === 'admin' ? 'admin.html' : 'blog.html';
+});
+</script>
+</body>
+</html>

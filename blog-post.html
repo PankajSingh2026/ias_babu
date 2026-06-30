@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Post | IASBABU</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="navbar" id="site-header"></header>
+<main class="page">
+  <article class="blog-post" id="post-area"></article>
+  <section id="comments" class="comments">
+    <h2 id="comments-heading">Comments &amp; Reviews</h2>
+    <p id="login-hint" class="hint" style="display:none">You need to <a href="login.html">log in</a> or <a href="signup.html">sign up</a> to comment.</p>
+    <form class="form comment-form" id="comment-form" style="display:none">
+      <label>Your rating (optional)
+        <select name="rating">
+          <option value="">No rating</option>
+          <option value="5">5 - Excellent</option>
+          <option value="4">4 - Good</option>
+          <option value="3">3 - Average</option>
+          <option value="2">2 - Below average</option>
+          <option value="1">1 - Poor</option>
+        </select>
+      </label>
+      <label>Comment<textarea name="body" rows="3" required></textarea></label>
+      <button class="btn-solid" type="submit">Post Comment</button>
+    </form>
+    <ul class="comment-list" id="comment-list"></ul>
+  </section>
+</main>
+<footer class="site-footer" id="site-footer"></footer>
+<script src="js/store.js"></script>
+<script src="js/layout.js"></script>
+<script>
+function getSlug() {
+  return new URLSearchParams(location.search).get('slug');
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const slug = getSlug();
+  const db = loadDB();
+  const post = db.blogPosts.find(p => p.slug === slug);
+  const area = document.getElementById('post-area');
+  if (!post) {
+    area.innerHTML = '<h1>Not found</h1><p>This post does not exist.</p>';
+    document.getElementById('comments').style.display = 'none';
+    return;
+  }
+  document.getElementById('page-title').textContent = post.title + ' | IASBABU';
+  area.innerHTML = `
+    <h1>${escapeHtml(post.title)}</h1>
+    <p class="meta">by ${escapeHtml(post.author)} &middot; ${new Date(post.createdAt).toLocaleDateString()}</p>
+    ${post.status !== 'published' ? `<p class="form-error">Status: ${post.status} (only visible to you and admins on this device)</p>` : ''}
+    ${post.cover ? `<img class="cover" src="${post.cover}" alt="">` : ''}
+    <div class="rich-content">${post.content}</div>`;
+
+  function renderComments() {
+    const db2 = loadDB();
+    const list = db2.comments.filter(c => c.postId === post.id).sort((a, b) => b.createdAt - a.createdAt);
+    document.getElementById('comments-heading').textContent = `Comments & Reviews (${list.length})`;
+    document.getElementById('comment-list').innerHTML = list.map(c => `
+      <li><strong>${escapeHtml(c.userName)}</strong>
+        ${c.rating ? `<span class="stars">&starf;${c.rating}/5</span>` : ''}
+        <span class="date">${new Date(c.createdAt).toLocaleDateString()}</span>
+        <p>${escapeHtml(c.body)}</p>
+      </li>`).join('') || '<li class="empty">No comments yet.</li>';
+  }
+  renderComments();
+
+  const user = getSession();
+  if (user) {
+    document.getElementById('comment-form').style.display = 'flex';
+  } else {
+    document.getElementById('login-hint').style.display = 'block';
+  }
+
+  document.getElementById('comment-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const user2 = getSession();
+    if (!user2) { location.href = 'login.html'; return; }
+    const body = this.body.value.trim();
+    const rating = this.rating.value ? parseInt(this.rating.value, 10) : null;
+    if (!body) return;
+    const db2 = loadDB();
+    db2.comments.push({ id: nextId(db2), postId: post.id, userName: user2.name, body, rating, createdAt: Date.now() });
+    saveDB(db2);
+    this.reset();
+    renderComments();
+  });
+});
+</script>
+</body>
+</html>
