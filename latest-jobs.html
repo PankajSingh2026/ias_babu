@@ -16,14 +16,18 @@
 <footer class="site-footer" id="site-footer"></footer>
 <script src="js/store.js"></script>
 <script src="js/layout.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/notifications-firestore.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  const db = loadDB();
-  const items = db.notifications.filter(n => n.category === 'job');
   const el = document.getElementById('list');
-  el.innerHTML = items.length ? items.map(n => `
-    <li class="${n.highlighted ? 'highlight' : ''}"><a href="${n.url}" target="_blank" rel="noopener">${escapeHtml(n.title)}</a></li>
-  `).join('') : '<li class="empty">No entries yet.</li>';
+  subscribeNotifications('job', items => {
+    el.innerHTML = items.length ? items.map(n => `
+      <li class="${n.highlighted ? 'highlight' : ''}"><a href="${n.url}" target="_blank" rel="noopener">${escapeHtml(n.title)}</a></li>
+    `).join('') : '<li class="empty">No entries yet.</li>';
+  });
 });
 </script>
 </body>

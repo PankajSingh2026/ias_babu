@@ -153,8 +153,10 @@
 <script src="js/layout.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/firebase-admin-auth.js"></script>
+<script src="js/notifications-firestore.js"></script>
 <script>
 let adminUser = null; // Firebase user, set once auth state resolves
 
@@ -245,29 +247,32 @@ document.getElementById('nav-form').addEventListener('submit', function (e) {
   saveDB(db); this.reset(); renderNav(); renderLayout();
 });
 
-// ---------- NOTIFICATIONS TAB ----------
+// ---------- NOTIFICATIONS TAB (Firestore - shared with all visitors) ----------
 function renderNotif() {
-  const db = loadDB();
-  document.getElementById('notif-rows').innerHTML = db.notifications.map(n => `
-    <tr>
-      <td>${n.category}</td><td>${escapeHtml(n.title)}</td><td>${escapeHtml(n.url)}</td>
-      <td>${n.highlighted ? 'Yes' : ''}</td>
-      <td><button class="btn-small danger" data-del-notif="${n.id}">Delete</button></td>
-    </tr>`).join('');
-  document.querySelectorAll('[data-del-notif]').forEach(btn => btn.addEventListener('click', () => {
-    const db2 = loadDB();
-    db2.notifications = db2.notifications.filter(n => n.id != btn.dataset.delNotif);
-    saveDB(db2); renderNotif();
-  }));
+  document.getElementById('notif-rows').innerHTML = '<tr><td colspan="5" class="empty">Loading...</td></tr>';
+  subscribeAllNotifications(items => {
+    document.getElementById('notif-rows').innerHTML = items.length ? items.map(n => `
+      <tr>
+        <td>${n.category}</td><td>${escapeHtml(n.title)}</td><td>${escapeHtml(n.url)}</td>
+        <td>${n.highlighted ? 'Yes' : ''}</td>
+        <td><button class="btn-small danger" data-del-notif="${n.id}">Delete</button></td>
+      </tr>`).join('') : '<tr><td colspan="5" class="empty">No notifications yet.</td></tr>';
+    document.querySelectorAll('[data-del-notif]').forEach(btn => btn.addEventListener('click', () => {
+      deleteNotification(btn.dataset.delNotif).catch(err => alert('Could not delete: ' + err.message));
+    }));
+  });
 }
 document.getElementById('notif-form').addEventListener('submit', function (e) {
   e.preventDefault();
-  const db = loadDB();
-  db.notifications.push({
-    id: nextId(db), category: this.category.value, title: this.title.value,
-    url: this.url.value, highlighted: this.highlighted.checked
-  });
-  saveDB(db); this.reset(); renderNotif();
+  const form = this;
+  addNotification({
+    category: form.category.value,
+    title: form.title.value,
+    url: form.url.value,
+    highlighted: form.highlighted.checked
+  }).then(() => {
+    form.reset();
+  }).catch(err => alert('Could not add notification: ' + err.message));
 });
 
 // ---------- BLOG TAB ----------
