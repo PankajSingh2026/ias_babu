@@ -126,7 +126,21 @@
 
       <!-- ===== USERS TAB ===== -->
       <section class="admin-tab-panel" id="tab-users">
-        <h2>Users</h2>
+        <h2>My Account (Firebase)</h2>
+        <p class="hint">Logged in as <strong id="admin-email"></strong>. Changing email or password requires
+          your current password, since Firebase requires a recent login for security-sensitive changes.</p>
+        <p id="account-error" class="form-error" style="display:none"></p>
+        <p id="account-success" style="display:none;color:#15803d">Saved.</p>
+        <form class="form" id="account-form">
+          <label>Email<input type="email" name="email" required></label>
+          <label>Current password (required to confirm any change)<input type="password" name="currentPassword" required></label>
+          <label>New password (leave blank to keep current)<input type="password" name="password" minlength="8"></label>
+          <label>Confirm new password<input type="password" name="confirmPassword" minlength="8"></label>
+          <button class="btn-solid" type="submit">Save My Account</button>
+        </form>
+
+        <h2 style="margin-top:32px">Blog / Comment Users</h2>
+        <p class="hint">These are visitors who signed up to write blog posts and comments (separate from your Firebase admin login).</p>
         <table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
           <tbody id="user-rows"></tbody></table>
       </section>
@@ -137,15 +151,28 @@
 
 <script src="js/store.js"></script>
 <script src="js/layout.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/firebase-admin-auth.js"></script>
 <script>
-const user = requireAdminRedirect();
-if (user) {
-  document.getElementById('admin-content').style.display = 'block';
-} else {
-  document.getElementById('guard-message').style.display = 'block';
-}
+let adminUser = null; // Firebase user, set once auth state resolves
 
-document.getElementById('logout-btn').addEventListener('click', () => { clearSession(); location.href = 'login.html'; });
+onAdminAuthChange(function (fbUser) {
+  if (!fbUser) {
+    document.getElementById('guard-message').style.display = 'block';
+    location.href = 'admin-login.html';
+    return;
+  }
+  adminUser = fbUser;
+  document.getElementById('admin-content').style.display = 'block';
+  document.getElementById('admin-email').textContent = fbUser.email;
+  renderNav(); renderNotif(); renderBlog(); renderSyllabus(); renderPages(); renderUsers(); renderAccount();
+});
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+  adminLogout().then(() => { location.href = 'admin-login.html'; });
+});
 
 document.querySelectorAll('.admin-tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -348,7 +375,59 @@ document.querySelectorAll('[data-save-page]').forEach(btn => btn.addEventListene
   alert('Saved.');
 }));
 
-// ---------- USERS TAB ----------
+// ---------- MY ACCOUNT (Firebase admin account) ----------
+function renderAccount() {
+  if (!adminUser) return;
+  const form = document.getElementById('account-form');
+  form.email.value = adminUser.email || '';
+}
+document.getElementById('account-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const errorEl = document.getElementById('account-error');
+  const successEl = document.getElementById('account-success');
+  errorEl.style.display = 'none'; successEl.style.display = 'none';
+
+  const newEmail = this.email.value.trim();
+  const currentPassword = this.currentPassword.value;
+  const newPassword = this.password.value;
+  const confirmPassword = this.confirmPassword.value;
+
+  if (newPassword && newPassword !== confirmPassword) {
+    errorEl.textContent = 'New password and confirmation do not match.';
+    errorEl.style.display = 'block';
+    return;
+  }
+  if (newPassword && newPassword.length < 8) {
+    errorEl.textContent = 'New password must be at least 8 characters.';
+    errorEl.style.display = 'block';
+    return;
+  }
+  if (!currentPassword) {
+    errorEl.textContent = 'Enter your current password to confirm this change (Firebase requires a recent login for security-sensitive changes).';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  const credential = firebase.auth.EmailAuthProvider.credential(adminUser.email, currentPassword);
+  adminUser.reauthenticateWithCredential(credential)
+    .then(() => {
+      const tasks = [];
+      if (newEmail && newEmail !== adminUser.email) tasks.push(adminUser.updateEmail(newEmail));
+      if (newPassword) tasks.push(adminUser.updatePassword(newPassword));
+      return Promise.all(tasks);
+    })
+    .then(() => {
+      successEl.style.display = 'block';
+      this.currentPassword.value = ''; this.password.value = ''; this.confirmPassword.value = '';
+      document.getElementById('admin-email').textContent = adminUser.email;
+    })
+    .catch(err => {
+      errorEl.textContent = friendlyAuthError(err);
+      errorEl.style.display = 'block';
+    });
+});
+
+// ---------- USERS TAB (blog/comment users, separate from the Firebase admin account) ----------
 function renderUsers() {
   const db = loadDB();
   document.getElementById('user-rows').innerHTML = db.users.map(u => `
@@ -374,10 +453,6 @@ function renderUsers() {
     db2.users = db2.users.filter(u => u.id !== btn.dataset.delUser);
     saveDB(db2); renderUsers();
   }));
-}
-
-if (user) {
-  renderNav(); renderNotif(); renderBlog(); renderSyllabus(); renderPages(); renderUsers();
 }
 </script>
 </body>

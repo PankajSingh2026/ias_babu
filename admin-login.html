@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login | IASBABU</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="navbar" id="site-header"></header>
+<main class="page">
+  <section class="auth-page">
+    <h1>Admin Login</h1>
+    <p class="hint">This login is for site admins only, powered by Firebase Authentication. Admin accounts
+      are created in the Firebase console, not through a public signup form.</p>
+    <p id="error" class="form-error" style="display:none"></p>
+    <form class="form" id="admin-login-form">
+      <label>Email<input type="email" name="email" required autocomplete="username"></label>
+      <label>Password<input type="password" name="password" required autocomplete="current-password"></label>
+      <button class="btn-solid" type="submit">Log In</button>
+    </form>
+    <p class="hint" id="setup-hint" style="display:none">
+      Firebase isn't configured yet - open <code>js/firebase-config.js</code> and follow the setup steps at
+      the top of that file.
+    </p>
+  </section>
+</main>
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="js/store.js"></script>
+<script src="js/layout.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/firebase-admin-auth.js"></script>
+<script>
+if (firebaseConfig.apiKey.startsWith('REPLACE_WITH')) {
+  document.getElementById('setup-hint').style.display = 'block';
+}
+
+// If already logged in as admin, skip straight to the dashboard
+onAdminAuthChange(function (user) {
+  if (user) location.href = 'admin.html';
+});
+
+document.getElementById('admin-login-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const errorEl = document.getElementById('error');
+  errorEl.style.display = 'none';
+  adminLogin(this.email.value.trim(), this.password.value)
+    .then(() => { location.href = 'admin.html'; })
+    .catch(err => {
+      errorEl.textContent = friendlyAuthError(err);
+      errorEl.style.display = 'block';
+    });
+});
+</script>
+</body>
+</html>
